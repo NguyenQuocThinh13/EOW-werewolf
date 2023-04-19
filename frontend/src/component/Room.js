@@ -3,7 +3,7 @@ import { io } from "socket.io-client";
 
 const Room = () => {
     const [listUser, setListUser] = useState([])
-    const socket = io('http://localhost:3000');
+    const socket = io('https://eow-werewolft-be.onrender.com/');
 
     useEffect(() => {
         socket.on('user_in_room', users => {

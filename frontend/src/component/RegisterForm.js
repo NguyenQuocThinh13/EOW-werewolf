@@ -5,7 +5,7 @@ import { io } from "socket.io-client";
 const RegisterForm = props => {
     const navigate = useNavigate()
     const [username, setUserName] = useState("");
-    const socket = io('http://localhost:3000');
+    const socket = io('https://eow-werewolft-be.onrender.com/');
 
     const handleInput = e => {
         setUserName(e.target?.value)
