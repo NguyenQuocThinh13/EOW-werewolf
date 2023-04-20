@@ -11,6 +11,7 @@ const io = new socketIO.Server(server, {
 })
 
 let users = [];
+let currentPhase = {};
 
 io.on('connection', (socket) => {
     socket.on('user_register', (data) => {
@@ -20,6 +21,12 @@ io.on('connection', (socket) => {
         io.sockets.emit('user_in_room', users)
     })
     socket.emit('user_in_room', users)
+    socket.on("game_phase", phase => {
+        console.log(phase)
+        currentPhase = phase;
+        io.sockets.emit("update_game_phase", phase)
+    })
+    socket.emit('update_game_phase', currentPhase)
 });
 
 app.use(cors());
