@@ -11,20 +11,26 @@ const io = new socketIO.Server(server, {
 })
 
 let users = [];
+
+Array(10).fill("").map((_, index) => users.push({name: `User ${index}`}))
+
 let currentPhase = {};
 
 io.on('connection', (socket) => {
     socket.on('user_register', (data) => {
         if (!users.includes(data.message)) {
-            users.push(data.message)
+            users.push({name: data.message})
         }
         io.sockets.emit('user_in_room', users)
     })
     socket.emit('user_in_room', users)
     socket.on("game_phase", phase => {
-        console.log(phase)
         currentPhase = phase;
         io.sockets.emit("update_game_phase", phase)
+    })
+    socket.on('update_role', updateUsers => {
+        users = updateUsers;
+        io.sockets.emit("user_in_room", users);
     })
     socket.emit('update_game_phase', currentPhase)
 });
