@@ -7,8 +7,12 @@ const gameTimeline = [
         name: 'Pick card'
     },
     {
-        plase: 2,
-        name: 'First night'
+        phase: 2,
+        name: 'Start first night'
+    },
+    {
+        phase: 3,
+        name: 'Night'
     }
 ]
 
@@ -53,43 +57,63 @@ const Room = () => {
     }, [])
 
     useEffect(() => {
-        if(Object.keys(currentPhase || {}).length > 0) {
+        if (Object.keys(currentPhase || {}).length > 0) {
             document.querySelector('html').style.background = "#BA9B37"
+            if(currentPhase.phase === 3) {
+                document.querySelector('html').style.background = "#3C1E46"
+            }
         }
     }, [currentPhase])
 
     useEffect(() => {
         roles.forEach(role => {
-            if(role.role === "villager") {
-                role.quantity = listUser.length - 3
+            if (role.role === "villager") {
+                role.quantity = (listUser.filter(user => user.name !== "admin")).length - 3
             }
         })
     }, [listUser]);
 
+    const handleNightPhase = () => {
+        if(isAdmin) {
+            
+        }
+    }
+
     const handleStartGame = useCallback(() => {
-        const phase = gameTimeline.find(timeline => timeline.phase == 1)
-        // setCurrentPhase(phase);
-        socket.emit('game_phase', phase)
+        const phase = gameTimeline.find(timeline => timeline.phase === 1);
+        setCurrentPhase(phase);
+        socket.emit('game_phase', phase);
     }, [currentPhase])
 
     const handleGiveCard = () => {
         const updateUser = listUser.map(user => {
             let randomIndex = Math.floor(Math.random() * 4);
-            while(roles[randomIndex]?.quantity === 0) {
+            while (roles[randomIndex]?.quantity === 0) {
                 randomIndex = Math.floor(Math.random() * 4);
             }
             // console.log(randomIndex, roles[randomIndex])
-            user.role = roles[randomIndex].role;
-            roles[randomIndex].quantity -= 1;
+            if (user.name !== "admin") {
+                user.role = roles[randomIndex].role;
+                roles[randomIndex].quantity -= 1;
+            }
             return user;
         })
+        const phase = gameTimeline.find(timeline => timeline.phase === 2);
+
+        setCurrentPhase(phase);
         socket.emit("update_role", updateUser);
+        socket.emit('game_phase', phase)
         // setListUser(updateUser)
+    }
+
+    const handleStartNight = () => {
+        const phase = gameTimeline.find(timeline => timeline.phase === 3);
+        setCurrentPhase(phase)
+        socket.emit('game_phase', phase)
     }
 
     return <div className="text-white p-5 text-center flex flex-col gap-20">
         <h1 className="font-bold text-4xl">Welcome to SD room</h1>
-        {!isAdmin && listUser.find(user => user?.name === username)?.role && <h3 className="text-xl text-orange-600">You are {listUser.find(user => user?.name === username)?.role}</h3>}
         <ul className="flex gap-10 justify-center flex-wrap">
             {listUser.map(user => <li className="w-2/12 text-center flex flex-col items-center gap-5" key={user.name}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" id="user">
@@ -118,6 +142,14 @@ const Room = () => {
             currentPhase?.phase === 1 ? isAdmin ? <div>
                 <button className="bg-white text-black p-5 font-bold rounded-md" onClick={handleGiveCard}>Pick card</button>
             </div> : <span>Admin is giving card, please wait</span> : ""
+        }
+        {
+            currentPhase?.phase === 2 ? isAdmin ? <div>
+                <button className="bg-white text-black p-5 font-bold rounded-md" onClick={handleStartNight}>Start first night</button>
+            </div> : <h3 className="text-xl text-orange-600">You are {listUser.find(user => user?.name === username)?.role}. Please wait for admin to start first night</h3> : ""
+        }
+        {
+            currentPhase?.phase === 3 && handleNightPhase()
         }
     </div>
 }
