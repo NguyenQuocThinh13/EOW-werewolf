@@ -38,7 +38,7 @@ io.on('connection', (socket) => {
 app.use(cors());
 
 app.get('/', (req, res) => {
-    res.json(users)
+    res.json({users})
 });
 
 server.listen(3000, () => {
