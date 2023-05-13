@@ -6,9 +6,9 @@ phases:
       - echo Connecting to Amazon ERS ...
       - aws --version
       - $(aws ecr get-login --region $AWS_DEFAULT_REGION --no-include-email)
-      - REPOSITORY_URI=public.ecr.aws/h5u3b4k1/eow-werewolf
-      # - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c -1-7)
-      # - IMAGE_TAG=build-$(echo $CODEBUILD_BUILD_ID awk -F":" '{print $2}')
+      - REPOSITORY_URI=public.ecr.aws/h5u3b4k1/eow-werewolf:eow-server
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c -1-7)
+      - IMAGE_TAG=build-$(echo $CODEBUILD_BUILD_ID awk -F":" '{print $2}')
   build:
     commands: 
       - echo Build started on `date`
