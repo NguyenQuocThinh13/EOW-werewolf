@@ -5,25 +5,26 @@ phases:
     commands:
       - echo Connecting to Amazon ERS ...
       - aws --version
-      - $(aws ecr get-login --region $AWS_DEFAULT_REGION --no-include-email)
+      - aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/h5u3b4k1
       - REPOSITORY_URI=public.ecr.aws/h5u3b4k1/eow-werewolf
       # - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c -1-7)
-      # - IMAGE_TAG=build-$(echo $CODEBUILD_BUILD_ID awk -F":" '{print $2}')
+      - IMAGE_TAG=build-$(echo $CODEBUILD_BUILD_ID awk -F":" '{print $2}'})
   build:
     commands: 
       - echo Build started on `date`
       - echo Building Docker image ...
+      - docker build -t $REPOSITORY_URI:latest ./backend
+      - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:eow-server
       - docker push $REPOSITORY_URI:latest
-      - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG 
   post_build:
     commands:
       - echo Build complete on `date`
       - echo Pushing the Docker image ...
-      - docker push $REPOSITORY_URI:latest
-      - docker push $REPOSITORY_URI:$IMAGE_TAG
+      - docker push $REPOSITORY_URI
+      - docker push $REPOSITORY_URI:eow-server
       - echo writing image definitions file ...
       - printf '[{"name":"eow-werewolf", "imageUri":"%s"}]'
-        $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
+        $REPOSITORY_URI:eow-server > imagedefinitions.json
       - cat imagedefinitions.json
 artifacts:
   files: imagedefinitions.json
