@@ -15,7 +15,6 @@ let users = [];
 Array(10).fill("").map((_, index) => users.push({name: `User ${index}`}))
 
 let currentPhase = {};
-
 io.on('connection', (socket) => {
     socket.on('user_register', (data) => {
         if (!users.includes(data.message)) {
