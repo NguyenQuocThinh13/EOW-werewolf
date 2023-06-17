@@ -40,6 +40,6 @@ app.get('/', (req, res) => {
     res.json({users})
 });
 
-server.listen(3000, () => {
-    console.log('listening on *:3000');
+server.listen(80, () => {
+    console.log('listening on *:80');
 });
